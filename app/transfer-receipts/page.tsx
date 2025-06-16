@@ -279,8 +279,8 @@ export default function TransferReceiptHistory() {
             Daftar Struk Transfer ({filteredReceipts.length})
           </CardTitle>
           <CardDescription>
-            Klik "Lihat" untuk melihat detail struk atau "Cetak" untuk mencetak
-            ulang
+            Klik &quot;Lihat&quot; untuk melihat detail struk atau
+            &quot;Cetak&quot; untuk mencetak ulang
           </CardDescription>
         </CardHeader>
         <CardContent>

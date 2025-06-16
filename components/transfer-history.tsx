@@ -1,27 +1,62 @@
-"use client"
+"use client";
 
-import { useApp } from "@/contexts/app-context"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ArrowUp, ArrowDown, TrendingUp, TrendingDown, Package, Download } from "lucide-react"
+import { useApp } from "@/contexts/app-context";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowUp,
+  ArrowDown,
+  TrendingUp,
+  TrendingDown,
+  Package,
+  Download,
+} from "lucide-react";
+import { Product } from "@/lib/types";
 
 interface TransferHistoryProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  product: any
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  product: Product;
 }
 
-export function TransferHistory({ open, onOpenChange, product }: TransferHistoryProps) {
-  const { getProductTransfers } = useApp()
-  const transfers = getProductTransfers(product.id)
+export function TransferHistory({
+  open,
+  onOpenChange,
+  product,
+}: TransferHistoryProps) {
+  const { getProductTransfers } = useApp();
+  const transfers = getProductTransfers(product.id);
 
   // Calculate summary stats
-  const totalIn = transfers.filter((t) => t.type === "in").reduce((sum, t) => sum + t.quantity, 0)
-  const totalOut = transfers.filter((t) => t.type === "out").reduce((sum, t) => sum + t.quantity, 0)
-  const netChange = totalIn - totalOut
+  const totalIn = transfers
+    .filter((t) => t.type === "in")
+    .reduce((sum, t) => sum + t.quantity, 0);
+  const totalOut = transfers
+    .filter((t) => t.type === "out")
+    .reduce((sum, t) => sum + t.quantity, 0);
+  const netChange = totalIn - totalOut;
 
   const handleExportTransfers = () => {
     // Create CSV content
@@ -35,7 +70,7 @@ export function TransferHistory({ open, onOpenChange, product }: TransferHistory
       "Stok Setelah",
       "Petugas",
       "Catatan",
-    ]
+    ];
     const csvContent = [
       headers.join(","),
       ...transfers.map((t) =>
@@ -49,19 +84,21 @@ export function TransferHistory({ open, onOpenChange, product }: TransferHistory
           t.stockAfter,
           t.user,
           t.notes || "",
-        ].join(","),
+        ].join(",")
       ),
-    ].join("\n")
+    ].join("\n");
 
     // Download CSV
-    const blob = new Blob([csvContent], { type: "text/csv" })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `transfer-history-${product.name.replace(/\s+/g, "-")}-${new Date().toISOString().split("T")[0]}.csv`
-    a.click()
-    window.URL.revokeObjectURL(url)
-  }
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `transfer-history-${product.name.replace(/\s+/g, "-")}-${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -71,7 +108,9 @@ export function TransferHistory({ open, onOpenChange, product }: TransferHistory
             <Package className="h-5 w-5" />
             Riwayat Transfer - {product.name}
           </DialogTitle>
-          <DialogDescription>Histori semua transfer in dan transfer out untuk produk ini</DialogDescription>
+          <DialogDescription>
+            Histori semua transfer in dan transfer out untuk produk ini
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -79,29 +118,39 @@ export function TransferHistory({ open, onOpenChange, product }: TransferHistory
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Transfer In</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total Transfer In
+                </CardTitle>
                 <ArrowUp className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">+{totalIn}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  +{totalIn}
+                </div>
                 <p className="text-xs text-muted-foreground">item masuk</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Transfer Out</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total Transfer Out
+                </CardTitle>
                 <ArrowDown className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">-{totalOut}</div>
+                <div className="text-2xl font-bold text-red-600">
+                  -{totalOut}
+                </div>
                 <p className="text-xs text-muted-foreground">item keluar</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Net Change</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Net Change
+                </CardTitle>
                 {netChange >= 0 ? (
                   <TrendingUp className="h-4 w-4 text-green-600" />
                 ) : (
@@ -109,17 +158,25 @@ export function TransferHistory({ open, onOpenChange, product }: TransferHistory
                 )}
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${netChange >= 0 ? "text-green-600" : "text-red-600"}`}>
+                <div
+                  className={`text-2xl font-bold ${
+                    netChange >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
                   {netChange >= 0 ? "+" : ""}
                   {netChange}
                 </div>
-                <p className="text-xs text-muted-foreground">perubahan bersih</p>
+                <p className="text-xs text-muted-foreground">
+                  perubahan bersih
+                </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Stok Saat Ini</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Stok Saat Ini
+                </CardTitle>
                 <Package className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -135,9 +192,15 @@ export function TransferHistory({ open, onOpenChange, product }: TransferHistory
               <div className="flex justify-between items-center">
                 <div>
                   <CardTitle>Riwayat Transfer ({transfers.length})</CardTitle>
-                  <CardDescription>Daftar semua aktivitas transfer untuk produk {product.name}</CardDescription>
+                  <CardDescription>
+                    Daftar semua aktivitas transfer untuk produk {product.name}
+                  </CardDescription>
                 </div>
-                <Button variant="outline" onClick={handleExportTransfers} disabled={transfers.length === 0}>
+                <Button
+                  variant="outline"
+                  onClick={handleExportTransfers}
+                  disabled={transfers.length === 0}
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Export CSV
                 </Button>
@@ -168,15 +231,23 @@ export function TransferHistory({ open, onOpenChange, product }: TransferHistory
                       <TableRow key={transfer.id}>
                         <TableCell>
                           <div>
-                            <div className="font-medium">{new Date(transfer.date).toLocaleDateString("id-ID")}</div>
+                            <div className="font-medium">
+                              {new Date(transfer.date).toLocaleDateString(
+                                "id-ID"
+                              )}
+                            </div>
                             <div className="text-sm text-muted-foreground">
-                              {new Date(transfer.date).toLocaleTimeString("id-ID")}
+                              {new Date(transfer.date).toLocaleTimeString(
+                                "id-ID"
+                              )}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant={transfer.type === "in" ? "default" : "destructive"}
+                            variant={
+                              transfer.type === "in" ? "default" : "destructive"
+                            }
                             className="flex items-center gap-1 w-fit"
                           >
                             {transfer.type === "in" ? (
@@ -188,27 +259,41 @@ export function TransferHistory({ open, onOpenChange, product }: TransferHistory
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <span className={`font-medium ${transfer.type === "in" ? "text-green-600" : "text-red-600"}`}>
+                          <span
+                            className={`font-medium ${
+                              transfer.type === "in"
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
                             {transfer.type === "in" ? "+" : "-"}
                             {transfer.quantity}
                           </span>
                         </TableCell>
                         <TableCell>{transfer.reason}</TableCell>
                         <TableCell>{transfer.stockBefore}</TableCell>
-                        <TableCell className="font-medium">{transfer.stockAfter}</TableCell>
+                        <TableCell className="font-medium">
+                          {transfer.stockAfter}
+                        </TableCell>
                         <TableCell>
                           <div>
                             <div className="font-medium">{transfer.user}</div>
                             {transfer.userId && (
-                              <div className="text-xs text-muted-foreground">ID: {transfer.userId}</div>
+                              <div className="text-xs text-muted-foreground">
+                                ID: {transfer.userId}
+                              </div>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
                           {transfer.notes ? (
-                            <span className="text-sm text-muted-foreground">{transfer.notes}</span>
+                            <span className="text-sm text-muted-foreground">
+                              {transfer.notes}
+                            </span>
                           ) : (
-                            <span className="text-sm text-muted-foreground italic">-</span>
+                            <span className="text-sm text-muted-foreground italic">
+                              -
+                            </span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -221,5 +306,5 @@ export function TransferHistory({ open, onOpenChange, product }: TransferHistory
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

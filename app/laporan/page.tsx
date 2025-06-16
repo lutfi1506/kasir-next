@@ -51,9 +51,15 @@ import {
 } from "lucide-react";
 import { LaporanChart } from "@/components/laporan-chart";
 import { LaporanReceipt } from "@/components/laporan-receipt";
+import {
+  CartItem,
+  LaporanReceiptData,
+  Product,
+  Transaction,
+} from "@/lib/types";
 
 export default function LaporanPage() {
-  const { transactions, products, stockTransfers } = useApp();
+  const { transactions, stockTransfers } = useApp();
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -64,7 +70,9 @@ export default function LaporanPage() {
     new Date().getFullYear().toString()
   );
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
-  const [receiptData, setReceiptData] = useState<any>(null);
+  const [receiptData, setReceiptData] = useState<LaporanReceiptData | null>(
+    null
+  );
 
   // Filter transactions for daily report
   const dailyTransactions = useMemo(() => {
@@ -209,9 +217,9 @@ export default function LaporanPage() {
   }, [yearlyTransactions]);
 
   // Top selling products
-  const getTopProducts = (transactionList: any[]) => {
+  const getTopProducts = (transactionList: Transaction[]) => {
     const productSales = transactionList.reduce((acc, transaction) => {
-      transaction.items.forEach((item: any) => {
+      transaction.items.forEach((item: CartItem) => {
         const productId = item.product.id;
         if (!acc[productId]) {
           acc[productId] = {
@@ -224,7 +232,7 @@ export default function LaporanPage() {
         acc[productId].revenue += item.quantity * item.product.price;
       });
       return acc;
-    }, {} as Record<string, { product: any; quantity: number; revenue: number }>);
+    }, {} as Record<string, { product: Product; quantity: number; revenue: number }>);
 
     return Object.values(productSales)
       .sort((a, b) => b.revenue - a.revenue)
@@ -238,72 +246,70 @@ export default function LaporanPage() {
   const handlePrintReceipt = (
     type: "daily" | "monthly" | "yearly" | "transfers"
   ) => {
-    let reportData;
-    let period;
-    let stats;
-    let transactions;
-    let transfers;
-    let topProducts;
+    let data;
 
     switch (type) {
       case "daily":
-        period = new Date(selectedDate).toLocaleDateString("id-ID", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
-        stats = dailyStats;
-        transactions = dailyTransactions;
-        transfers = dailyTransfers;
-        topProducts = getTopProducts(dailyTransactions);
+        data = {
+          period: new Date(selectedDate).toLocaleDateString("id-ID", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          stats: dailyStats,
+          transactions: dailyTransactions,
+          transfers: dailyTransfers,
+          topProducts: getTopProducts(dailyTransactions),
+          dateGenerated: new Date(),
+        };
         break;
       case "monthly":
-        period = new Date(selectedMonth + "-01").toLocaleDateString("id-ID", {
-          year: "numeric",
-          month: "long",
-        });
-        stats = monthlyStats;
-        transactions = monthlyTransactions;
-        transfers = monthlyTransfers;
-        topProducts = getTopProducts(monthlyTransactions);
+        data = {
+          period: new Date(selectedMonth + "-01").toLocaleDateString("id-ID", {
+            year: "numeric",
+            month: "long",
+          }),
+          stats: monthlyStats,
+          transactions: monthlyTransactions,
+          transfers: monthlyTransfers,
+          topProducts: getTopProducts(monthlyTransactions),
+          dateGenerated: new Date(),
+        };
         break;
       case "yearly":
-        period = `Tahun ${selectedYear}`;
-        stats = yearlyStats;
-        transactions = yearlyTransactions;
-        topProducts = getTopProducts(yearlyTransactions);
+        data = {
+          period: `Tahun ${selectedYear}`,
+          stats: yearlyStats,
+          transactions: yearlyTransactions,
+          topProducts: getTopProducts(yearlyTransactions),
+          dateGenerated: new Date(),
+        };
         break;
       case "transfers":
-        period = new Date(selectedDate).toLocaleDateString("id-ID", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
-        stats = {
-          transferIn: dailyTransfers
-            .filter((t) => t.type === "in")
-            .reduce((sum, t) => sum + t.quantity, 0),
-          transferOut: dailyTransfers
-            .filter((t) => t.type === "out")
-            .reduce((sum, t) => sum + t.quantity, 0),
-          totalTransfers: dailyTransfers.length,
+        data = {
+          period: new Date(selectedDate).toLocaleDateString("id-ID", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          stats: {
+            transferIn: dailyTransfers
+              .filter((t) => t.type === "in")
+              .reduce((sum, t) => sum + t.quantity, 0),
+            transferOut: dailyTransfers
+              .filter((t) => t.type === "out")
+              .reduce((sum, t) => sum + t.quantity, 0),
+            totalTransfers: dailyTransfers.length,
+          },
+          transfers: dailyTransfers,
+          dateGenerated: new Date(),
         };
-        transfers = dailyTransfers;
         break;
     }
 
-    reportData = {
-      period,
-      stats,
-      transactions,
-      transfers,
-      topProducts,
-      dateGenerated: new Date(),
-    };
-
-    setReceiptData({ type, data: reportData });
+    setReceiptData({ type, data });
     setShowReceiptDialog(true);
   };
 
@@ -1276,8 +1282,8 @@ export default function LaporanPage() {
                 : "Transfer"}
             </DialogTitle>
             <DialogDescription>
-              Preview struk laporan sebelum dicetak. Klik "Cetak" untuk mencetak
-              struk.
+              Preview struk laporan sebelum dicetak. Klik &quot;Cetak&quot;
+              untuk mencetak struk.
             </DialogDescription>
           </DialogHeader>
           {receiptData && (

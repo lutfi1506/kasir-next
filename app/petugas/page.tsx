@@ -31,13 +31,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Edit, Trash2, Search, UserPlus } from "lucide-react";
+import { Staff } from "@/lib/types";
 
 export default function PetugasPage() {
   const { staff, addStaff, updateStaff, deleteStaff } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingStaff, setEditingStaff] = useState<any>(null);
+  const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -77,7 +78,7 @@ export default function PetugasPage() {
     setIsAddDialogOpen(false);
   };
 
-  const handleEdit = (staffMember: any) => {
+  const handleEdit = (staffMember: Staff) => {
     setEditingStaff(staffMember);
     setFormData({
       name: staffMember.name,

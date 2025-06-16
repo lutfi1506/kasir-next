@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/contexts/app-context";
+import type { Product } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,8 +50,8 @@ export default function ProdukPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<any>(null);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [transferType, setTransferType] = useState<"in" | "out">("in");
   const [formData, setFormData] = useState({
     name: "",
@@ -97,7 +98,7 @@ export default function ProdukPage() {
     setIsAddDialogOpen(false);
   };
 
-  const handleEdit = (product: any) => {
+  const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
@@ -138,13 +139,13 @@ export default function ProdukPage() {
     }
   };
 
-  const handleTransfer = (product: any, type: "in" | "out") => {
+  const handleTransfer = (product: Product, type: "in" | "out") => {
     setSelectedProduct(product);
     setTransferType(type);
     setIsTransferDialogOpen(true);
   };
 
-  const handleViewHistory = (product: any) => {
+  const handleViewHistory = (product: Product) => {
     setSelectedProduct(product);
     setIsHistoryDialogOpen(true);
   };

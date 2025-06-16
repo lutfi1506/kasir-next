@@ -30,6 +30,7 @@ import {
   Printer,
 } from "lucide-react";
 import { PrintReceipt } from "@/components/print-receipt";
+import { Transaction } from "@/lib/types";
 
 export default function PenjualanPage() {
   const {
@@ -45,7 +46,9 @@ export default function PenjualanPage() {
   const [customerName, setCustomerName] = useState("");
   const [payment, setPayment] = useState("");
   const [showReceipt, setShowReceipt] = useState(false);
-  const [lastTransaction, setLastTransaction] = useState<any>(null);
+  const [lastTransaction, setLastTransaction] = useState<Transaction | null>(
+    null
+  );
 
   const filteredProducts = products.filter(
     (product) =>

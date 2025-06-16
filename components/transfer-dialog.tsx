@@ -1,32 +1,61 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useApp } from "@/contexts/app-context"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { ArrowUp, ArrowDown, AlertTriangle, Printer, FileText } from "lucide-react"
-import { TransferReceipt } from "./transfer-receipt"
+import { useState } from "react";
+import { useApp } from "@/contexts/app-context";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  ArrowUp,
+  ArrowDown,
+  AlertTriangle,
+  Printer,
+  FileText,
+} from "lucide-react";
+import { TransferReceipt } from "./transfer-receipt";
+import { Product } from "@/lib/types";
 
 interface TransferDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  product: any
-  type: "in" | "out"
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  product: Product;
+  type: "in" | "out";
 }
 
-export function TransferDialog({ open, onOpenChange, product, type }: TransferDialogProps) {
-  const { addStockTransfer, addTransferReceipt, updateReceiptPrintCount, staff } = useApp()
-  const [quantity, setQuantity] = useState("")
-  const [reason, setReason] = useState("")
-  const [notes, setNotes] = useState("")
-  const [selectedStaff, setSelectedStaff] = useState("")
-  const [showReceipt, setShowReceipt] = useState(false)
-  const [currentReceiptId, setCurrentReceiptId] = useState<string | null>(null)
+export function TransferDialog({
+  open,
+  onOpenChange,
+  product,
+  type,
+}: TransferDialogProps) {
+  const {
+    addStockTransfer,
+    addTransferReceipt,
+    updateReceiptPrintCount,
+    staff,
+  } = useApp();
+  const [quantity, setQuantity] = useState("");
+  const [reason, setReason] = useState("");
+  const [notes, setNotes] = useState("");
+  const [selectedStaff, setSelectedStaff] = useState("");
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [currentReceiptId, setCurrentReceiptId] = useState<string | null>(null);
 
   const transferInReasons = [
     "Pembelian Barang",
@@ -36,7 +65,7 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
     "Transfer dari Cabang",
     "Hadiah/Bonus",
     "Lainnya",
-  ]
+  ];
 
   const transferOutReasons = [
     "Barang Rusak",
@@ -47,28 +76,29 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
     "Sampel Gratis",
     "Retur ke Supplier",
     "Lainnya",
-  ]
+  ];
 
-  const reasons = type === "in" ? transferInReasons : transferOutReasons
-  const activeStaff = staff.filter((s) => s.status === "aktif")
+  const reasons = type === "in" ? transferInReasons : transferOutReasons;
+  const activeStaff = staff.filter((s) => s.status === "aktif");
 
   const handleSubmit = () => {
-    if (!quantity || !reason || !selectedStaff) return
+    if (!quantity || !reason || !selectedStaff) return;
 
-    const qty = Number.parseInt(quantity)
-    if (qty <= 0) return
+    const qty = Number.parseInt(quantity);
+    if (qty <= 0) return;
 
     // Validate stock for transfer out
     if (type === "out" && qty > product.stock) {
-      alert("Jumlah transfer out tidak boleh melebihi stok yang tersedia!")
-      return
+      alert("Jumlah transfer out tidak boleh melebihi stok yang tersedia!");
+      return;
     }
 
-    const selectedStaffMember = staff.find((s) => s.id === selectedStaff)
-    if (!selectedStaffMember) return
+    const selectedStaffMember = staff.find((s) => s.id === selectedStaff);
+    if (!selectedStaffMember) return;
 
-    const stockBefore = product.stock
-    const stockAfter = type === "in" ? stockBefore + qty : Math.max(0, stockBefore - qty)
+    const stockBefore = product.stock;
+    const stockAfter =
+      type === "in" ? stockBefore + qty : Math.max(0, stockBefore - qty);
 
     const transferData = {
       productId: product.id,
@@ -82,10 +112,10 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
       userId: selectedStaffMember.id,
       stockBefore,
       stockAfter,
-    }
+    };
 
     // Add transfer
-    addStockTransfer(transferData)
+    addStockTransfer(transferData);
 
     // Create receipt
     const receiptData = {
@@ -111,38 +141,38 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
       },
       stockBefore,
       stockAfter,
-    }
+    };
 
-    const receiptId = addTransferReceipt(receiptData)
-    setCurrentReceiptId(receiptId)
+    const receiptId = addTransferReceipt(receiptData);
+    setCurrentReceiptId(receiptId);
 
     // Reset form
-    setQuantity("")
-    setReason("")
-    setNotes("")
-    setSelectedStaff("")
+    setQuantity("");
+    setReason("");
+    setNotes("");
+    setSelectedStaff("");
 
     // Show receipt
-    setShowReceipt(true)
-  }
+    setShowReceipt(true);
+  };
 
   const handlePrint = () => {
     if (currentReceiptId) {
-      updateReceiptPrintCount(currentReceiptId)
+      updateReceiptPrintCount(currentReceiptId);
     }
-    window.print()
-  }
+    window.print();
+  };
 
   const handleCloseReceipt = () => {
-    setShowReceipt(false)
-    setCurrentReceiptId(null)
-    onOpenChange(false)
-  }
+    setShowReceipt(false);
+    setCurrentReceiptId(null);
+    onOpenChange(false);
+  };
 
   const newStock =
     type === "in"
       ? product.stock + Number.parseInt(quantity || "0")
-      : Math.max(0, product.stock - Number.parseInt(quantity || "0"))
+      : Math.max(0, product.stock - Number.parseInt(quantity || "0"));
 
   if (showReceipt && currentReceiptId) {
     return (
@@ -153,7 +183,9 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
               <FileText className="h-5 w-5" />
               Laporan Transfer {type === "in" ? "In" : "Out"}
             </DialogTitle>
-            <DialogDescription>Transfer berhasil diproses. Cetak laporan untuk dokumentasi.</DialogDescription>
+            <DialogDescription>
+              Transfer berhasil diproses. Cetak laporan untuk dokumentasi.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <TransferReceipt receiptId={currentReceiptId} />
@@ -169,7 +201,7 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
           </div>
         </DialogContent>
       </Dialog>
-    )
+    );
   }
 
   return (
@@ -184,7 +216,9 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
             )}
             Transfer {type === "in" ? "In" : "Out"} - {product.name}
           </DialogTitle>
-          <DialogDescription>{type === "in" ? "Tambah stok produk" : "Kurangi stok produk"}</DialogDescription>
+          <DialogDescription>
+            {type === "in" ? "Tambah stok produk" : "Kurangi stok produk"}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -192,7 +226,15 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
           <div className="p-3 bg-muted rounded-lg">
             <div className="flex justify-between items-center">
               <span className="font-medium">{product.name}</span>
-              <Badge variant={product.stock > 10 ? "default" : product.stock > 0 ? "secondary" : "destructive"}>
+              <Badge
+                variant={
+                  product.stock > 10
+                    ? "default"
+                    : product.stock > 0
+                    ? "secondary"
+                    : "destructive"
+                }
+              >
                 Stok: {product.stock}
               </Badge>
             </div>
@@ -233,12 +275,13 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
               onChange={(e) => setQuantity(e.target.value)}
               placeholder="Masukkan jumlah"
             />
-            {type === "out" && Number.parseInt(quantity || "0") > product.stock && (
-              <div className="flex items-center gap-1 mt-1 text-sm text-red-600">
-                <AlertTriangle className="h-3 w-3" />
-                <span>Jumlah melebihi stok tersedia</span>
-              </div>
-            )}
+            {type === "out" &&
+              Number.parseInt(quantity || "0") > product.stock && (
+                <div className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                  <AlertTriangle className="h-3 w-3" />
+                  <span>Jumlah melebihi stok tersedia</span>
+                </div>
+              )}
           </div>
 
           {/* Reason */}
@@ -280,7 +323,11 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
                 </div>
                 <div className="flex justify-between">
                   <span>{type === "in" ? "Ditambah:" : "Dikurangi:"}</span>
-                  <span className={`font-medium ${type === "in" ? "text-green-600" : "text-red-600"}`}>
+                  <span
+                    className={`font-medium ${
+                      type === "in" ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
                     {type === "in" ? "+" : "-"}
                     {quantity}
                   </span>
@@ -303,7 +350,8 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
                 !reason ||
                 !selectedStaff ||
                 Number.parseInt(quantity || "0") <= 0 ||
-                (type === "out" && Number.parseInt(quantity || "0") > product.stock)
+                (type === "out" &&
+                  Number.parseInt(quantity || "0") > product.stock)
               }
             >
               Konfirmasi Transfer
@@ -315,5 +363,5 @@ export function TransferDialog({ open, onOpenChange, product, type }: TransferDi
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
