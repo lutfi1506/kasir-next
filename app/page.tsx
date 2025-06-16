@@ -1,75 +1,187 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { AppSidebar } from "@/components/app-sidebar"
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
-import { Dashboard } from "@/components/dashboard"
-import { PenjualanPage } from "@/components/penjualan-page"
-import { ProdukPage } from "@/components/produk-page"
-import { PetugasPage } from "@/components/petugas-page"
-import { AboutPage } from "@/components/about-page"
-import { LaporanPage } from "@/components/laporan-page"
-import { TransferReceiptHistory } from "@/components/transfer-receipt-history"
+import { useApp } from "@/contexts/app-context";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DollarSign,
+  ShoppingCart,
+  Package,
+  Users,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 
-export default function Page() {
-  const [currentPage, setCurrentPage] = useState("dashboard")
+export default function Dashboard() {
+  const { products, staff, transactions } = useApp();
 
-  const renderPage = () => {
-    switch (currentPage) {
-      case "dashboard":
-        return <Dashboard />
-      case "penjualan":
-        return <PenjualanPage />
-      case "produk":
-        return <ProdukPage />
-      case "petugas":
-        return <PetugasPage />
-      case "about":
-        return <AboutPage />
-      case "laporan":
-        return <LaporanPage />
-      case "transfer-receipts":
-        return <TransferReceiptHistory />
-      default:
-        return <Dashboard />
-    }
-  }
+  // Calculate stats
+  const todayTransactions = transactions.filter(
+    (t) => new Date(t.date).toDateString() === new Date().toDateString()
+  );
 
-  const getPageTitle = () => {
-    switch (currentPage) {
-      case "dashboard":
-        return "Dashboard"
-      case "penjualan":
-        return "Penjualan"
-      case "produk":
-        return "Kelola Produk"
-      case "petugas":
-        return "Kelola Petugas"
-      case "about":
-        return "Tentang Aplikasi"
-      case "laporan":
-        return "Laporan Penjualan"
-      case "transfer-receipts":
-        return "Riwayat Struk Transfer"
-      default:
-        return "Dashboard"
-    }
-  }
+  const todayRevenue = todayTransactions.reduce((sum, t) => sum + t.total, 0);
+  const activeStaff = staff.filter((s) => s.status === "aktif").length;
+  const lowStockProducts = products.filter((p) => p.stock <= 10).length;
+
+  const stats = [
+    {
+      title: "Total Penjualan Hari Ini",
+      value: `Rp ${todayRevenue.toLocaleString()}`,
+      change: "+12.5%",
+      trend: "up",
+      icon: DollarSign,
+    },
+    {
+      title: "Transaksi Hari Ini",
+      value: todayTransactions.length.toString(),
+      change: "+8.2%",
+      trend: "up",
+      icon: ShoppingCart,
+    },
+    {
+      title: "Total Produk",
+      value: products.length.toString(),
+      change: `${lowStockProducts} stok rendah`,
+      trend: lowStockProducts > 0 ? "down" : "up",
+      icon: Package,
+    },
+    {
+      title: "Petugas Aktif",
+      value: activeStaff.toString(),
+      change: "0%",
+      trend: "neutral",
+      icon: Users,
+    },
+  ];
 
   return (
-    <SidebarProvider>
-      <AppSidebar currentPage={currentPage} onPageChange={setCurrentPage} />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <h1 className="text-lg font-semibold">{getPageTitle()}</h1>
-          </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{renderPage()}</div>
-      </SidebarInset>
-    </SidebarProvider>
-  )
+    <>
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, index) => (
+          <Card key={index}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                {stat.title}
+              </CardTitle>
+              <stat.icon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="flex items-center text-xs text-muted-foreground">
+                {stat.trend === "up" && (
+                  <TrendingUp className="mr-1 h-3 w-3 text-green-500" />
+                )}
+                {stat.trend === "down" && (
+                  <TrendingDown className="mr-1 h-3 w-3 text-red-500" />
+                )}
+                <span
+                  className={
+                    stat.trend === "up"
+                      ? "text-green-500"
+                      : stat.trend === "down"
+                      ? "text-red-500"
+                      : ""
+                  }
+                >
+                  {stat.change}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Recent Transactions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Transaksi Terbaru</CardTitle>
+          <CardDescription>Daftar transaksi terbaru hari ini</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID Transaksi</TableHead>
+                <TableHead>Pelanggan</TableHead>
+                <TableHead>Jumlah Item</TableHead>
+                <TableHead>Total</TableHead>
+                <TableHead>Kasir</TableHead>
+                <TableHead>Waktu</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {transactions.slice(0, 5).map((transaction) => (
+                <TableRow key={transaction.id}>
+                  <TableCell className="font-medium">
+                    {transaction.id}
+                  </TableCell>
+                  <TableCell>{transaction.customer}</TableCell>
+                  <TableCell>{transaction.items.length} item</TableCell>
+                  <TableCell className="font-medium">
+                    Rp {transaction.total.toLocaleString()}
+                  </TableCell>
+                  <TableCell>{transaction.cashier}</TableCell>
+                  <TableCell>
+                    {new Date(transaction.date).toLocaleTimeString("id-ID")}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {transactions.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center text-muted-foreground"
+                  >
+                    Belum ada transaksi hari ini
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <CardHeader className="text-center">
+            <ShoppingCart className="h-8 w-8 mx-auto mb-2 text-primary" />
+            <CardTitle className="text-lg">Transaksi Baru</CardTitle>
+            <CardDescription>Mulai transaksi penjualan baru</CardDescription>
+          </CardHeader>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <CardHeader className="text-center">
+            <Package className="h-8 w-8 mx-auto mb-2 text-primary" />
+            <CardTitle className="text-lg">Kelola Produk</CardTitle>
+            <CardDescription>Tambah atau edit produk</CardDescription>
+          </CardHeader>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <CardHeader className="text-center">
+            <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
+            <CardTitle className="text-lg">Kelola Petugas</CardTitle>
+            <CardDescription>Atur data petugas kasir</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    </>
+  );
 }

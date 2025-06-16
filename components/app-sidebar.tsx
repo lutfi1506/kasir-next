@@ -1,6 +1,8 @@
-"use client"
+"use client";
 
-import type * as React from "react"
+import type * as React from "react";
+import Link from "next/link";
+import { useSelectedLayoutSegment } from "next/navigation";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -13,8 +15,7 @@ import {
   ChevronUp,
   BarChart3,
   FileText,
-} from "lucide-react"
-
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -27,53 +28,42 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+} from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  currentPage: string
-  onPageChange: (page: string) => void
-}
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const segment = useSelectedLayoutSegment();
 
-export function AppSidebar({ currentPage, onPageChange, ...props }: AppSidebarProps) {
   const menuItems = [
     {
       title: "Dashboard",
       key: "dashboard",
+      href: "/",
       icon: LayoutDashboard,
     },
     {
       title: "Penjualan",
       key: "penjualan",
+      href: "/penjualan",
       icon: ShoppingCart,
     },
-    {
-      title: "Produk",
-      key: "produk",
-      icon: Package,
-    },
-    {
-      title: "Petugas",
-      key: "petugas",
-      icon: Users,
-    },
-    {
-      title: "Laporan",
-      key: "laporan",
-      icon: BarChart3,
-    },
+    { title: "Produk", key: "produk", href: "/produk", icon: Package },
+    { title: "Petugas", key: "petugas", href: "/petugas", icon: Users },
+    { title: "Laporan", key: "laporan", href: "/laporan", icon: BarChart3 },
     {
       title: "Riwayat Struk Transfer",
       key: "transfer-receipts",
+      href: "/transfer-receipts",
       icon: FileText,
     },
-    {
-      title: "About",
-      key: "about",
-      icon: Info,
-    },
-  ]
+    { title: "About", key: "about", href: "/about", icon: Info },
+  ];
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -102,14 +92,18 @@ export function AppSidebar({ currentPage, onPageChange, ...props }: AppSidebarPr
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.key}>
-                  <SidebarMenuButton
-                    isActive={currentPage === item.key}
-                    tooltip={item.title}
-                    onClick={() => onPageChange(item.key)}
-                  >
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
+                  <Link href={item.href} passHref>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={item.key === (segment || "dashboard")}
+                      tooltip={item.title}
+                    >
+                      <span>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </span>
+                    </SidebarMenuButton>
+                  </Link>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -158,5 +152,5 @@ export function AppSidebar({ currentPage, onPageChange, ...props }: AppSidebarPr
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

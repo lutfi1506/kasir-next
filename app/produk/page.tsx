@@ -1,13 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useApp } from "@/contexts/app-context"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import { useState } from "react";
+import { useApp } from "@/contexts/app-context";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -15,35 +22,49 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Edit, Trash2, Search, ArrowUp, ArrowDown, History } from "lucide-react"
-import { TransferDialog } from "./transfer-dialog"
-import { TransferHistory } from "./transfer-history"
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Search,
+  ArrowUp,
+  ArrowDown,
+  History,
+} from "lucide-react";
+import { TransferDialog } from "@/components/transfer-dialog";
+import { TransferHistory } from "@/components/transfer-history";
 
-export function ProdukPage() {
-  const { products, addProduct, updateProduct, deleteProduct } = useApp()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false)
-  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<any>(null)
-  const [selectedProduct, setSelectedProduct] = useState<any>(null)
-  const [transferType, setTransferType] = useState<"in" | "out">("in")
+export default function ProdukPage() {
+  const { products, addProduct, updateProduct, deleteProduct } = useApp();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [transferType, setTransferType] = useState<"in" | "out">("in");
   const [formData, setFormData] = useState({
     name: "",
     price: "",
     stock: "",
     category: "",
     barcode: "",
-  })
+  });
 
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const resetForm = () => {
     setFormData({
@@ -52,11 +73,17 @@ export function ProdukPage() {
       stock: "",
       category: "",
       barcode: "",
-    })
-  }
+    });
+  };
 
   const handleAdd = () => {
-    if (!formData.name || !formData.price || !formData.stock || !formData.category) return
+    if (
+      !formData.name ||
+      !formData.price ||
+      !formData.stock ||
+      !formData.category
+    )
+      return;
 
     addProduct({
       name: formData.name,
@@ -64,26 +91,33 @@ export function ProdukPage() {
       stock: Number.parseInt(formData.stock),
       category: formData.category,
       barcode: formData.barcode || undefined,
-    })
+    });
 
-    resetForm()
-    setIsAddDialogOpen(false)
-  }
+    resetForm();
+    setIsAddDialogOpen(false);
+  };
 
   const handleEdit = (product: any) => {
-    setEditingProduct(product)
+    setEditingProduct(product);
     setFormData({
       name: product.name,
       price: product.price.toString(),
       stock: product.stock.toString(),
       category: product.category,
       barcode: product.barcode || "",
-    })
-    setIsEditDialogOpen(true)
-  }
+    });
+    setIsEditDialogOpen(true);
+  };
 
   const handleUpdate = () => {
-    if (!editingProduct || !formData.name || !formData.price || !formData.stock || !formData.category) return
+    if (
+      !editingProduct ||
+      !formData.name ||
+      !formData.price ||
+      !formData.stock ||
+      !formData.category
+    )
+      return;
 
     updateProduct(editingProduct.id, {
       name: formData.name,
@@ -91,29 +125,29 @@ export function ProdukPage() {
       stock: Number.parseInt(formData.stock),
       category: formData.category,
       barcode: formData.barcode || undefined,
-    })
+    });
 
-    resetForm()
-    setIsEditDialogOpen(false)
-    setEditingProduct(null)
-  }
+    resetForm();
+    setIsEditDialogOpen(false);
+    setEditingProduct(null);
+  };
 
   const handleDelete = (id: string) => {
     if (confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
-      deleteProduct(id)
+      deleteProduct(id);
     }
-  }
+  };
 
   const handleTransfer = (product: any, type: "in" | "out") => {
-    setSelectedProduct(product)
-    setTransferType(type)
-    setIsTransferDialogOpen(true)
-  }
+    setSelectedProduct(product);
+    setTransferType(type);
+    setIsTransferDialogOpen(true);
+  };
 
   const handleViewHistory = (product: any) => {
-    setSelectedProduct(product)
-    setIsHistoryDialogOpen(true)
-  }
+    setSelectedProduct(product);
+    setIsHistoryDialogOpen(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -121,7 +155,9 @@ export function ProdukPage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Kelola Produk</h2>
-          <p className="text-muted-foreground">Tambah, edit, dan kelola stok produk</p>
+          <p className="text-muted-foreground">
+            Tambah, edit, dan kelola stok produk
+          </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
@@ -133,7 +169,9 @@ export function ProdukPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Tambah Produk Baru</DialogTitle>
-              <DialogDescription>Masukkan informasi produk yang akan ditambahkan</DialogDescription>
+              <DialogDescription>
+                Masukkan informasi produk yang akan ditambahkan
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -141,7 +179,9 @@ export function ProdukPage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="Masukkan nama produk"
                 />
               </div>
@@ -149,7 +189,9 @@ export function ProdukPage() {
                 <Label htmlFor="category">Kategori</Label>
                 <Select
                   value={formData.category}
-                  onValueChange={(value) => setFormData({ ...formData, category: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, category: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih kategori" />
@@ -170,7 +212,9 @@ export function ProdukPage() {
                     id="price"
                     type="number"
                     value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price: e.target.value })
+                    }
                     placeholder="0"
                   />
                 </div>
@@ -180,7 +224,9 @@ export function ProdukPage() {
                     id="stock"
                     type="number"
                     value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, stock: e.target.value })
+                    }
                     placeholder="0"
                   />
                 </div>
@@ -190,7 +236,9 @@ export function ProdukPage() {
                 <Input
                   id="barcode"
                   value={formData.barcode}
-                  onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, barcode: e.target.value })
+                  }
                   placeholder="Masukkan barcode"
                 />
               </div>
@@ -198,7 +246,10 @@ export function ProdukPage() {
                 <Button onClick={handleAdd} className="flex-1">
                   Tambah Produk
                 </Button>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddDialogOpen(false)}
+                >
                   Batal
                 </Button>
               </div>
@@ -249,11 +300,21 @@ export function ProdukPage() {
                   </TableCell>
                   <TableCell>Rp {product.price.toLocaleString()}</TableCell>
                   <TableCell>
-                    <Badge variant={product.stock > 10 ? "default" : product.stock > 0 ? "secondary" : "destructive"}>
+                    <Badge
+                      variant={
+                        product.stock > 10
+                          ? "default"
+                          : product.stock > 0
+                          ? "secondary"
+                          : "destructive"
+                      }
+                    >
                       {product.stock}
                     </Badge>
                   </TableCell>
-                  <TableCell className="font-mono text-sm">{product.barcode || "-"}</TableCell>
+                  <TableCell className="font-mono text-sm">
+                    {product.barcode || "-"}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       <Button
@@ -286,10 +347,18 @@ export function ProdukPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(product)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(product)}
+                      >
                         <Edit className="h-3 w-3" />
                       </Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(product.id)}>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(product.id)}
+                      >
                         <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
@@ -314,7 +383,9 @@ export function ProdukPage() {
               <Input
                 id="edit-name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Masukkan nama produk"
               />
             </div>
@@ -322,7 +393,9 @@ export function ProdukPage() {
               <Label htmlFor="edit-category">Kategori</Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, category: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih kategori" />
@@ -343,7 +416,9 @@ export function ProdukPage() {
                   id="edit-price"
                   type="number"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, price: e.target.value })
+                  }
                   placeholder="0"
                 />
               </div>
@@ -353,7 +428,9 @@ export function ProdukPage() {
                   id="edit-stock"
                   type="number"
                   value={formData.stock}
-                  onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, stock: e.target.value })
+                  }
                   placeholder="0"
                 />
               </div>
@@ -363,7 +440,9 @@ export function ProdukPage() {
               <Input
                 id="edit-barcode"
                 value={formData.barcode}
-                onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, barcode: e.target.value })
+                }
                 placeholder="Masukkan barcode"
               />
             </div>
@@ -371,7 +450,10 @@ export function ProdukPage() {
               <Button onClick={handleUpdate} className="flex-1">
                 Simpan Perubahan
               </Button>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
                 Batal
               </Button>
             </div>
@@ -391,8 +473,12 @@ export function ProdukPage() {
 
       {/* Transfer History Dialog */}
       {selectedProduct && (
-        <TransferHistory open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen} product={selectedProduct} />
+        <TransferHistory
+          open={isHistoryDialogOpen}
+          onOpenChange={setIsHistoryDialogOpen}
+          product={selectedProduct}
+        />
       )}
     </div>
-  )
+  );
 }

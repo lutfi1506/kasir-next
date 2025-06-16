@@ -1,25 +1,60 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useApp } from "@/contexts/app-context"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Eye, Printer, Download, ArrowUp, ArrowDown, FileText } from "lucide-react"
-import { TransferReceipt } from "./transfer-receipt"
+import { useState } from "react";
+import { useApp } from "@/contexts/app-context";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Search,
+  Eye,
+  Printer,
+  Download,
+  ArrowUp,
+  ArrowDown,
+  FileText,
+} from "lucide-react";
+import { TransferReceipt } from "@/components/transfer-receipt";
 
-export function TransferReceiptHistory() {
-  const { transferReceipts, updateReceiptPrintCount } = useApp()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterType, setFilterType] = useState<"all" | "in" | "out">("all")
-  const [filterDate, setFilterDate] = useState("")
-  const [selectedReceiptId, setSelectedReceiptId] = useState<string | null>(null)
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+export default function TransferReceiptHistory() {
+  const { transferReceipts, updateReceiptPrintCount } = useApp();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState<"all" | "in" | "out">("all");
+  const [filterDate, setFilterDate] = useState("");
+  const [selectedReceiptId, setSelectedReceiptId] = useState<string | null>(
+    null
+  );
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   // Filter receipts
   const filteredReceipts = transferReceipts.filter((receipt) => {
@@ -28,28 +63,29 @@ export function TransferReceiptHistory() {
       receipt.transferId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       receipt.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       receipt.staff.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      receipt.reason.toLowerCase().includes(searchTerm.toLowerCase())
+      receipt.reason.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesType = filterType === "all" || receipt.type === filterType
+    const matchesType = filterType === "all" || receipt.type === filterType;
 
-    const matchesDate = !filterDate || receipt.date.toISOString().split("T")[0] === filterDate
+    const matchesDate =
+      !filterDate || receipt.date.toISOString().split("T")[0] === filterDate;
 
-    return matchesSearch && matchesType && matchesDate
-  })
+    return matchesSearch && matchesType && matchesDate;
+  });
 
   const handleViewReceipt = (receiptId: string) => {
-    setSelectedReceiptId(receiptId)
-    setIsViewDialogOpen(true)
-  }
+    setSelectedReceiptId(receiptId);
+    setIsViewDialogOpen(true);
+  };
 
   const handlePrintReceipt = (receiptId: string) => {
-    setSelectedReceiptId(receiptId)
-    updateReceiptPrintCount(receiptId)
+    setSelectedReceiptId(receiptId);
+    updateReceiptPrintCount(receiptId);
     // Small delay to ensure state is updated before printing
     setTimeout(() => {
-      window.print()
-    }, 100)
-  }
+      window.print();
+    }, 100);
+  };
 
   const handleExportReceipts = () => {
     // Create CSV content
@@ -67,7 +103,7 @@ export function TransferReceiptHistory() {
       "Petugas",
       "Jumlah Cetak",
       "Catatan",
-    ]
+    ];
     const csvContent = [
       headers.join(","),
       ...filteredReceipts.map((r) =>
@@ -85,19 +121,21 @@ export function TransferReceiptHistory() {
           r.staff.name,
           r.printCount,
           r.notes || "",
-        ].join(","),
+        ].join(",")
       ),
-    ].join("\n")
+    ].join("\n");
 
     // Download CSV
-    const blob = new Blob([csvContent], { type: "text/csv" })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `riwayat-struk-transfer-${new Date().toISOString().split("T")[0]}.csv`
-    a.click()
-    window.URL.revokeObjectURL(url)
-  }
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `riwayat-struk-transfer-${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-6">
@@ -105,9 +143,14 @@ export function TransferReceiptHistory() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Riwayat Struk Transfer</h2>
-          <p className="text-muted-foreground">Lihat dan cetak ulang semua struk transfer yang pernah dibuat</p>
+          <p className="text-muted-foreground">
+            Lihat dan cetak ulang semua struk transfer yang pernah dibuat
+          </p>
         </div>
-        <Button onClick={handleExportReceipts} disabled={filteredReceipts.length === 0}>
+        <Button
+          onClick={handleExportReceipts}
+          disabled={filteredReceipts.length === 0}
+        >
           <Download className="h-4 w-4 mr-2" />
           Export CSV
         </Button>
@@ -134,7 +177,12 @@ export function TransferReceiptHistory() {
             </div>
             <div>
               <Label htmlFor="type-filter">Tipe Transfer</Label>
-              <Select value={filterType} onValueChange={(value: "all" | "in" | "out") => setFilterType(value)}>
+              <Select
+                value={filterType}
+                onValueChange={(value: "all" | "in" | "out") =>
+                  setFilterType(value)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Semua tipe" />
                 </SelectTrigger>
@@ -147,15 +195,20 @@ export function TransferReceiptHistory() {
             </div>
             <div>
               <Label htmlFor="date-filter">Tanggal</Label>
-              <Input id="date-filter" type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
+              <Input
+                id="date-filter"
+                type="date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+              />
             </div>
             <div className="flex items-end">
               <Button
                 variant="outline"
                 onClick={() => {
-                  setSearchTerm("")
-                  setFilterType("all")
-                  setFilterDate("")
+                  setSearchTerm("");
+                  setFilterType("all");
+                  setFilterDate("");
                 }}
                 className="w-full"
               >
@@ -211,7 +264,9 @@ export function TransferReceiptHistory() {
             <Printer className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{filteredReceipts.reduce((sum, r) => sum + r.printCount, 0)}</div>
+            <div className="text-2xl font-bold">
+              {filteredReceipts.reduce((sum, r) => sum + r.printCount, 0)}
+            </div>
             <p className="text-xs text-muted-foreground">kali cetak</p>
           </CardContent>
         </Card>
@@ -220,8 +275,13 @@ export function TransferReceiptHistory() {
       {/* Receipts Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Daftar Struk Transfer ({filteredReceipts.length})</CardTitle>
-          <CardDescription>Klik "Lihat" untuk melihat detail struk atau "Cetak" untuk mencetak ulang</CardDescription>
+          <CardTitle>
+            Daftar Struk Transfer ({filteredReceipts.length})
+          </CardTitle>
+          <CardDescription>
+            Klik "Lihat" untuk melihat detail struk atau "Cetak" untuk mencetak
+            ulang
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {filteredReceipts.length === 0 ? (
@@ -248,30 +308,52 @@ export function TransferReceiptHistory() {
               <TableBody>
                 {filteredReceipts.map((receipt) => (
                   <TableRow key={receipt.id}>
-                    <TableCell className="font-mono text-sm">{receipt.id}</TableCell>
+                    <TableCell className="font-mono text-sm">
+                      {receipt.id}
+                    </TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{receipt.date.toLocaleDateString("id-ID")}</div>
-                        <div className="text-sm text-muted-foreground">{receipt.date.toLocaleTimeString("id-ID")}</div>
+                        <div className="font-medium">
+                          {receipt.date.toLocaleDateString("id-ID")}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {receipt.date.toLocaleTimeString("id-ID")}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{receipt.product.name}</div>
-                        <div className="text-sm text-muted-foreground">{receipt.product.category}</div>
+                        <div className="font-medium">
+                          {receipt.product.name}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {receipt.product.category}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={receipt.type === "in" ? "default" : "destructive"}
+                        variant={
+                          receipt.type === "in" ? "default" : "destructive"
+                        }
                         className="flex items-center gap-1 w-fit"
                       >
-                        {receipt.type === "in" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                        {receipt.type === "in" ? (
+                          <ArrowUp className="h-3 w-3" />
+                        ) : (
+                          <ArrowDown className="h-3 w-3" />
+                        )}
                         {receipt.type === "in" ? "IN" : "OUT"}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className={`font-medium ${receipt.type === "in" ? "text-green-600" : "text-red-600"}`}>
+                      <span
+                        className={`font-medium ${
+                          receipt.type === "in"
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
                         {receipt.type === "in" ? "+" : "-"}
                         {receipt.quantity}
                       </span>
@@ -280,7 +362,9 @@ export function TransferReceiptHistory() {
                     <TableCell>
                       <div>
                         <div className="font-medium">{receipt.staff.name}</div>
-                        <div className="text-sm text-muted-foreground">{receipt.staff.role}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {receipt.staff.role}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -288,10 +372,18 @@ export function TransferReceiptHistory() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleViewReceipt(receipt.id)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleViewReceipt(receipt.id)}
+                        >
                           <Eye className="h-3 w-3" />
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => handlePrintReceipt(receipt.id)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handlePrintReceipt(receipt.id)}
+                        >
                           <Printer className="h-3 w-3" />
                         </Button>
                       </div>
@@ -312,7 +404,9 @@ export function TransferReceiptHistory() {
               <FileText className="h-5 w-5" />
               Detail Struk Transfer
             </DialogTitle>
-            <DialogDescription>Lihat detail lengkap struk transfer</DialogDescription>
+            <DialogDescription>
+              Lihat detail lengkap struk transfer
+            </DialogDescription>
           </DialogHeader>
           {selectedReceiptId && (
             <div className="space-y-4">
@@ -321,14 +415,17 @@ export function TransferReceiptHistory() {
                 <Button
                   className="flex-1"
                   onClick={() => {
-                    handlePrintReceipt(selectedReceiptId)
-                    setIsViewDialogOpen(false)
+                    handlePrintReceipt(selectedReceiptId);
+                    setIsViewDialogOpen(false);
                   }}
                 >
                   <Printer className="h-4 w-4 mr-2" />
                   Cetak Ulang
                 </Button>
-                <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsViewDialogOpen(false)}
+                >
                   Tutup
                 </Button>
               </div>
@@ -344,5 +441,5 @@ export function TransferReceiptHistory() {
         </div>
       )}
     </div>
-  )
+  );
 }

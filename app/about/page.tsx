@@ -1,15 +1,22 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Store, Users, Package, ShoppingCart, Heart, Code } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Store, Users, Package, ShoppingCart, Heart, Code } from "lucide-react";
 
-export function AboutPage() {
+export default function AboutPage() {
   const features = [
     {
       icon: ShoppingCart,
       title: "Penjualan",
-      description: "Sistem penjualan dengan scanner barcode dan cetak struk otomatis",
+      description:
+        "Sistem penjualan dengan scanner barcode dan cetak struk otomatis",
     },
     {
       icon: Package,
@@ -26,7 +33,7 @@ export function AboutPage() {
       title: "Dashboard",
       description: "Pantau performa penjualan dan statistik bisnis real-time",
     },
-  ]
+  ];
 
   return (
     <div className="space-y-6">
@@ -39,7 +46,9 @@ export function AboutPage() {
             </div>
           </div>
           <CardTitle className="text-3xl">Kasir App</CardTitle>
-          <CardDescription className="text-lg">Aplikasi Point of Sale Modern untuk Bisnis Anda</CardDescription>
+          <CardDescription className="text-lg">
+            Aplikasi Point of Sale Modern untuk Bisnis Anda
+          </CardDescription>
           <div className="flex justify-center gap-2 mt-4">
             <Badge variant="secondary">v1.0.0</Badge>
             <Badge variant="outline">React</Badge>
@@ -53,19 +62,25 @@ export function AboutPage() {
         <CardHeader>
           <CardTitle>Fitur Utama</CardTitle>
           <CardDescription>
-            Kasir App dilengkapi dengan berbagai fitur untuk mendukung operasional bisnis Anda
+            Kasir App dilengkapi dengan berbagai fitur untuk mendukung
+            operasional bisnis Anda
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             {features.map((feature, index) => (
-              <div key={index} className="flex items-start space-x-4 p-4 border rounded-lg">
+              <div
+                key={index}
+                className="flex items-start space-x-4 p-4 border rounded-lg"
+              >
                 <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <feature.icon className="size-5" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {feature.description}
+                  </p>
                 </div>
               </div>
             ))}
@@ -77,24 +92,32 @@ export function AboutPage() {
       <Card>
         <CardHeader>
           <CardTitle>Teknologi yang Digunakan</CardTitle>
-          <CardDescription>Dibangun dengan teknologi modern dan terpercaya</CardDescription>
+          <CardDescription>
+            Dibangun dengan teknologi modern dan terpercaya
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
             <div className="text-center p-4 border rounded-lg">
               <Code className="h-8 w-8 mx-auto mb-2 text-primary" />
               <h3 className="font-semibold">Frontend</h3>
-              <p className="text-sm text-muted-foreground">React, Next.js, TypeScript</p>
+              <p className="text-sm text-muted-foreground">
+                React, Next.js, TypeScript
+              </p>
             </div>
             <div className="text-center p-4 border rounded-lg">
               <Package className="h-8 w-8 mx-auto mb-2 text-primary" />
               <h3 className="font-semibold">UI Components</h3>
-              <p className="text-sm text-muted-foreground">shadcn/ui, Tailwind CSS</p>
+              <p className="text-sm text-muted-foreground">
+                shadcn/ui, Tailwind CSS
+              </p>
             </div>
             <div className="text-center p-4 border rounded-lg">
               <Store className="h-8 w-8 mx-auto mb-2 text-primary" />
               <h3 className="font-semibold">State Management</h3>
-              <p className="text-sm text-muted-foreground">React Context, Local Storage</p>
+              <p className="text-sm text-muted-foreground">
+                React Context, Local Storage
+              </p>
             </div>
           </div>
         </CardContent>
@@ -108,8 +131,8 @@ export function AboutPage() {
             Dibuat dengan ❤️
           </CardTitle>
           <CardDescription>
-            Aplikasi ini dikembangkan untuk membantu bisnis kecil dan menengah dalam mengelola penjualan dengan lebih
-            efisien.
+            Aplikasi ini dikembangkan untuk membantu bisnis kecil dan menengah
+            dalam mengelola penjualan dengan lebih efisien.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -118,7 +141,8 @@ export function AboutPage() {
               <strong>Versi:</strong> 1.0.0
             </p>
             <p>
-              <strong>Tanggal Rilis:</strong> {new Date().toLocaleDateString("id-ID")}
+              <strong>Tanggal Rilis:</strong>{" "}
+              {new Date().toLocaleDateString("id-ID")}
             </p>
             <p>
               <strong>Lisensi:</strong> MIT License
@@ -130,5 +154,5 @@ export function AboutPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

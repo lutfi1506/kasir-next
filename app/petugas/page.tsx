@@ -1,13 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useApp } from "@/contexts/app-context"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import { useState } from "react";
+import { useApp } from "@/contexts/app-context";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -15,29 +22,35 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Edit, Trash2, Search, UserPlus } from "lucide-react"
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Edit, Trash2, Search, UserPlus } from "lucide-react";
 
-export function PetugasPage() {
-  const { staff, addStaff, updateStaff, deleteStaff } = useApp()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [editingStaff, setEditingStaff] = useState<any>(null)
+export default function PetugasPage() {
+  const { staff, addStaff, updateStaff, deleteStaff } = useApp();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     role: "kasir" as "admin" | "kasir",
     status: "aktif" as "aktif" | "nonaktif",
-  })
+  });
 
   const filteredStaff = staff.filter(
     (member) =>
       member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.email.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      member.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const resetForm = () => {
     setFormData({
@@ -46,11 +59,11 @@ export function PetugasPage() {
       phone: "",
       role: "kasir",
       status: "aktif",
-    })
-  }
+    });
+  };
 
   const handleAdd = () => {
-    if (!formData.name || !formData.email || !formData.phone) return
+    if (!formData.name || !formData.email || !formData.phone) return;
 
     addStaff({
       name: formData.name,
@@ -58,26 +71,27 @@ export function PetugasPage() {
       phone: formData.phone,
       role: formData.role,
       status: formData.status,
-    })
+    });
 
-    resetForm()
-    setIsAddDialogOpen(false)
-  }
+    resetForm();
+    setIsAddDialogOpen(false);
+  };
 
   const handleEdit = (staffMember: any) => {
-    setEditingStaff(staffMember)
+    setEditingStaff(staffMember);
     setFormData({
       name: staffMember.name,
       email: staffMember.email,
       phone: staffMember.phone,
       role: staffMember.role,
       status: staffMember.status,
-    })
-    setIsEditDialogOpen(true)
-  }
+    });
+    setIsEditDialogOpen(true);
+  };
 
   const handleUpdate = () => {
-    if (!editingStaff || !formData.name || !formData.email || !formData.phone) return
+    if (!editingStaff || !formData.name || !formData.email || !formData.phone)
+      return;
 
     updateStaff(editingStaff.id, {
       name: formData.name,
@@ -85,18 +99,18 @@ export function PetugasPage() {
       phone: formData.phone,
       role: formData.role,
       status: formData.status,
-    })
+    });
 
-    resetForm()
-    setIsEditDialogOpen(false)
-    setEditingStaff(null)
-  }
+    resetForm();
+    setIsEditDialogOpen(false);
+    setEditingStaff(null);
+  };
 
   const handleDelete = (id: string) => {
     if (confirm("Apakah Anda yakin ingin menghapus petugas ini?")) {
-      deleteStaff(id)
+      deleteStaff(id);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -104,7 +118,9 @@ export function PetugasPage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Kelola Petugas</h2>
-          <p className="text-muted-foreground">Tambah, edit, dan hapus data petugas</p>
+          <p className="text-muted-foreground">
+            Tambah, edit, dan hapus data petugas
+          </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
@@ -116,7 +132,9 @@ export function PetugasPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Tambah Petugas Baru</DialogTitle>
-              <DialogDescription>Masukkan informasi petugas yang akan ditambahkan</DialogDescription>
+              <DialogDescription>
+                Masukkan informasi petugas yang akan ditambahkan
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -124,7 +142,9 @@ export function PetugasPage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="Masukkan nama lengkap"
                 />
               </div>
@@ -134,7 +154,9 @@ export function PetugasPage() {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   placeholder="Masukkan email"
                 />
               </div>
@@ -143,7 +165,9 @@ export function PetugasPage() {
                 <Input
                   id="phone"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
                   placeholder="Masukkan nomor telepon"
                 />
               </div>
@@ -152,7 +176,9 @@ export function PetugasPage() {
                   <Label htmlFor="role">Role</Label>
                   <Select
                     value={formData.role}
-                    onValueChange={(value: "admin" | "kasir") => setFormData({ ...formData, role: value })}
+                    onValueChange={(value: "admin" | "kasir") =>
+                      setFormData({ ...formData, role: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih role" />
@@ -167,7 +193,9 @@ export function PetugasPage() {
                   <Label htmlFor="status">Status</Label>
                   <Select
                     value={formData.status}
-                    onValueChange={(value: "aktif" | "nonaktif") => setFormData({ ...formData, status: value })}
+                    onValueChange={(value: "aktif" | "nonaktif") =>
+                      setFormData({ ...formData, status: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih status" />
@@ -183,7 +211,10 @@ export function PetugasPage() {
                 <Button onClick={handleAdd} className="flex-1">
                   Tambah Petugas
                 </Button>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddDialogOpen(false)}
+                >
                   Batal
                 </Button>
               </div>
@@ -231,21 +262,37 @@ export function PetugasPage() {
                   <TableCell>{member.email}</TableCell>
                   <TableCell>{member.phone}</TableCell>
                   <TableCell>
-                    <Badge variant={member.role === "admin" ? "default" : "secondary"}>
+                    <Badge
+                      variant={
+                        member.role === "admin" ? "default" : "secondary"
+                      }
+                    >
                       {member.role === "admin" ? "Admin" : "Kasir"}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={member.status === "aktif" ? "default" : "destructive"}>
+                    <Badge
+                      variant={
+                        member.status === "aktif" ? "default" : "destructive"
+                      }
+                    >
                       {member.status === "aktif" ? "Aktif" : "Non-aktif"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(member)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(member)}
+                      >
                         <Edit className="h-3 w-3" />
                       </Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(member.id)}>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(member.id)}
+                      >
                         <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
@@ -270,7 +317,9 @@ export function PetugasPage() {
               <Input
                 id="edit-name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Masukkan nama lengkap"
               />
             </div>
@@ -280,7 +329,9 @@ export function PetugasPage() {
                 id="edit-email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 placeholder="Masukkan email"
               />
             </div>
@@ -289,7 +340,9 @@ export function PetugasPage() {
               <Input
                 id="edit-phone"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
                 placeholder="Masukkan nomor telepon"
               />
             </div>
@@ -298,7 +351,9 @@ export function PetugasPage() {
                 <Label htmlFor="edit-role">Role</Label>
                 <Select
                   value={formData.role}
-                  onValueChange={(value: "admin" | "kasir") => setFormData({ ...formData, role: value })}
+                  onValueChange={(value: "admin" | "kasir") =>
+                    setFormData({ ...formData, role: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih role" />
@@ -313,7 +368,9 @@ export function PetugasPage() {
                 <Label htmlFor="edit-status">Status</Label>
                 <Select
                   value={formData.status}
-                  onValueChange={(value: "aktif" | "nonaktif") => setFormData({ ...formData, status: value })}
+                  onValueChange={(value: "aktif" | "nonaktif") =>
+                    setFormData({ ...formData, status: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih status" />
@@ -329,7 +386,10 @@ export function PetugasPage() {
               <Button onClick={handleUpdate} className="flex-1">
                 Simpan Perubahan
               </Button>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
                 Batal
               </Button>
             </div>
@@ -337,5 +397,5 @@ export function PetugasPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
