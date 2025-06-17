@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useApp } from "@/contexts/app-context";
 import type { Product } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +42,7 @@ import {
 } from "lucide-react";
 import { TransferDialog } from "@/components/transfer-dialog";
 import { TransferHistory } from "@/components/transfer-history";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function ProdukPage() {
   const { products, addProduct, updateProduct, deleteProduct } = useApp();
@@ -61,10 +62,20 @@ export default function ProdukPage() {
     barcode: "",
   });
 
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const debounceSearchTerm = useDebounce(searchTerm, 300);
+
+  const filteredProducts = useMemo(
+    () =>
+      products.filter(
+        (product) =>
+          product.name
+            .toLowerCase()
+            .includes(debounceSearchTerm.toLowerCase()) ||
+          product.category
+            .toLowerCase()
+            .includes(debounceSearchTerm.toLowerCase())
+      ),
+    [products, debounceSearchTerm]
   );
 
   const resetForm = () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useApp } from "@/contexts/app-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import { Edit, Trash2, Search, UserPlus } from "lucide-react";
 import { Staff } from "@/lib/types";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function PetugasPage() {
   const { staff, addStaff, updateStaff, deleteStaff } = useApp();
@@ -46,11 +47,18 @@ export default function PetugasPage() {
     role: "kasir" as "admin" | "kasir",
     status: "aktif" as "aktif" | "nonaktif",
   });
+  const debounceSearchTerm = useDebounce(searchTerm, 300);
 
-  const filteredStaff = staff.filter(
-    (member) =>
-      member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStaff = useMemo(
+    () =>
+      staff.filter(
+        (member) =>
+          member.name
+            .toLowerCase()
+            .includes(debounceSearchTerm.toLowerCase()) ||
+          member.email.toLowerCase().includes(debounceSearchTerm.toLowerCase())
+      ),
+    [staff, debounceSearchTerm]
   );
 
   const resetForm = () => {

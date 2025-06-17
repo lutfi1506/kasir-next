@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react"; // 1. Impor useMemo
 import { useApp } from "@/contexts/app-context";
 import {
   Card,
@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
@@ -30,7 +29,9 @@ import {
   Printer,
 } from "lucide-react";
 import { PrintReceipt } from "@/components/print-receipt";
+import ProductCard from "@/components/product-card"; // 2. Impor komponen baru
 import { Transaction } from "@/lib/types";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function PenjualanPage() {
   const {
@@ -50,10 +51,18 @@ export default function PenjualanPage() {
     null
   );
 
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.barcode?.includes(searchTerm)
+  const debounceSearchTerm = useDebounce(searchTerm, 300);
+
+  const filteredProducts = useMemo(
+    () =>
+      products.filter(
+        (product) =>
+          product.name
+            .toLowerCase()
+            .includes(debounceSearchTerm.toLowerCase()) ||
+          product.barcode?.includes(debounceSearchTerm)
+      ),
+    [products, debounceSearchTerm]
   );
 
   const cartTotal = cart.reduce(
@@ -107,38 +116,14 @@ export default function PenjualanPage() {
                 className="flex-1"
               />
             </div>
+            {/* 4. Ganti perulangan map dengan komponen baru */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
               {filteredProducts.map((product) => (
-                <Card
+                <ProductCard
                   key={product.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow"
-                >
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold">{product.name}</h3>
-                      <Badge
-                        variant={product.stock > 10 ? "default" : "destructive"}
-                      >
-                        Stok: {product.stock}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {product.category}
-                    </p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold">
-                        Rp {product.price.toLocaleString()}
-                      </span>
-                      <Button
-                        size="sm"
-                        onClick={() => addToCart(product, 1)}
-                        disabled={product.stock === 0}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                  product={product}
+                  onAddToCart={(p) => addToCart(p, 1)}
+                />
               ))}
             </div>
           </CardContent>

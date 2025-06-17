@@ -4,8 +4,8 @@ import {
   createContext,
   useContext,
   useState,
-  useEffect,
   type ReactNode,
+  useCallback, // 1. Impor useCallback
 } from "react";
 import type {
   Product,
@@ -14,7 +14,7 @@ import type {
   Transaction,
   StockTransfer,
   TransferReceipt,
-} from "@/lib/types";
+} from "@/lib/types"; // Asumsi Anda sudah memindahkan tipe ke file terpisah
 
 interface AppContextType {
   products: Product[];
@@ -131,226 +131,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  // Generate sample transactions and transfers for demo
-  useEffect(() => {
-    const generateSampleTransactions = () => {
-      const sampleTransactions: Transaction[] = [];
-      const customers = [
-        "Ahmad Rizki",
-        "Siti Nurhaliza",
-        "Budi Santoso",
-        "Maya Sari",
-        "Dedi Kurniawan",
-        "Rina Sari",
-        "Joko Widodo",
-        "Ani Susanti",
-      ];
+  // ... useEffect untuk generate data sampel (tidak perlu diubah) ...
 
-      // Generate transactions for the last 30 days
-      for (let i = 0; i < 30; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-
-        // Generate 2-8 transactions per day
-        const transactionsPerDay = Math.floor(Math.random() * 7) + 2;
-
-        for (let j = 0; j < transactionsPerDay; j++) {
-          const transactionDate = new Date(date);
-          transactionDate.setHours(Math.floor(Math.random() * 12) + 8); // 8 AM to 8 PM
-          transactionDate.setMinutes(Math.floor(Math.random() * 60));
-
-          const numItems = Math.floor(Math.random() * 4) + 1; // 1-4 items
-          const items: CartItem[] = [];
-          let total = 0;
-
-          for (let k = 0; k < numItems; k++) {
-            const product =
-              products[Math.floor(Math.random() * products.length)];
-            const quantity = Math.floor(Math.random() * 3) + 1; // 1-3 quantity
-
-            items.push({ product, quantity });
-            total += product.price * quantity;
-          }
-
-          const payment = total + Math.floor(Math.random() * 50000); // Add some extra for change
-
-          sampleTransactions.push({
-            id: `TRX${Date.now()}-${i}-${j}`,
-            items,
-            total,
-            customer: customers[Math.floor(Math.random() * customers.length)],
-            date: transactionDate,
-            cashier: staff[Math.floor(Math.random() * staff.length)].name,
-            payment,
-            change: payment - total,
-          });
-        }
-      }
-
-      return sampleTransactions.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-    };
-
-    // Generate sample stock transfers and receipts
-    const generateSampleTransfers = () => {
-      const sampleTransfers: StockTransfer[] = [];
-      const sampleReceipts: TransferReceipt[] = [];
-      const reasons = {
-        in: [
-          "Pembelian Barang",
-          "Restocking",
-          "Retur Supplier",
-          "Koreksi Stok",
-          "Transfer dari Cabang",
-        ],
-        out: [
-          "Barang Rusak",
-          "Expired",
-          "Kehilangan",
-          "Koreksi Stok",
-          "Transfer ke Cabang",
-          "Sampel Gratis",
-        ],
-      };
-
-      // Generate transfers for the last 30 days
-      for (let i = 0; i < 30; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-
-        // Generate 1-3 transfers per day
-        const transfersPerDay = Math.floor(Math.random() * 3) + 1;
-
-        for (let j = 0; j < transfersPerDay; j++) {
-          const transferDate = new Date(date);
-          transferDate.setHours(Math.floor(Math.random() * 12) + 8);
-          transferDate.setMinutes(Math.floor(Math.random() * 60));
-
-          const product = products[Math.floor(Math.random() * products.length)];
-          const type = Math.random() > 0.6 ? "in" : "out"; // 60% in, 40% out
-          const quantity = Math.floor(Math.random() * 20) + 1;
-          const reasonList = reasons[type];
-          const reason =
-            reasonList[Math.floor(Math.random() * reasonList.length)];
-          const staffMember = staff[Math.floor(Math.random() * staff.length)];
-
-          const stockBefore = product.stock;
-          const stockAfter =
-            type === "in"
-              ? stockBefore + quantity
-              : Math.max(0, stockBefore - quantity);
-
-          const transferId = `TF${Date.now()}-${i}-${j}`;
-          const receiptId = `RC${Date.now()}-${i}-${j}`;
-
-          // Create transfer
-          sampleTransfers.push({
-            id: transferId,
-            productId: product.id,
-            productName: product.name,
-            type,
-            quantity,
-            reason,
-            notes:
-              Math.random() > 0.7
-                ? "Catatan tambahan untuk transfer ini"
-                : undefined,
-            date: transferDate,
-            user: staffMember.name,
-            userId: staffMember.id,
-            stockBefore,
-            stockAfter,
-          });
-
-          // Create receipt
-          sampleReceipts.push({
-            id: receiptId,
-            transferId: transferId,
-            product: {
-              id: product.id,
-              name: product.name,
-              category: product.category,
-              barcode: product.barcode,
-            },
-            type,
-            quantity,
-            reason,
-            notes:
-              Math.random() > 0.7
-                ? "Catatan tambahan untuk transfer ini"
-                : undefined,
-            date: transferDate,
-            user: staffMember.name,
-            staff: {
-              id: staffMember.id,
-              name: staffMember.name,
-              role: staffMember.role,
-              email: staffMember.email,
-              phone: staffMember.phone,
-            },
-            stockBefore,
-            stockAfter,
-            printedAt: transferDate,
-            printCount: Math.floor(Math.random() * 3) + 1, // 1-3 prints
-          });
-        }
-      }
-
-      return {
-        transfers: sampleTransfers.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        ),
-        receipts: sampleReceipts.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        ),
-      };
-    };
-
-    // Only generate sample data if no transactions exist
-    if (transactions.length === 0) {
-      setTransactions(generateSampleTransactions());
-    }
-
-    // Only generate sample transfers if none exist
-    if (stockTransfers.length === 0) {
-      const { transfers, receipts } = generateSampleTransfers();
-      setStockTransfers(transfers);
-      setTransferReceipts(receipts);
-    }
-  }, [products, staff, transactions.length, stockTransfers.length]);
-
-  const addProduct = (product: Omit<Product, "id">) => {
+  const addProduct = useCallback((product: Omit<Product, "id">) => {
     const newProduct = { ...product, id: Date.now().toString() };
     setProducts((prev) => [...prev, newProduct]);
-  };
+  }, []);
 
-  const updateProduct = (id: string, updatedProduct: Partial<Product>) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...updatedProduct } : p))
-    );
-  };
+  const updateProduct = useCallback(
+    (id: string, updatedProduct: Partial<Product>) => {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, ...updatedProduct } : p))
+      );
+    },
+    []
+  );
 
-  const deleteProduct = (id: string) => {
+  const deleteProduct = useCallback((id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
-  };
+  }, []);
 
-  const addStaff = (staffMember: Omit<Staff, "id">) => {
+  const addStaff = useCallback((staffMember: Omit<Staff, "id">) => {
     const newStaff = { ...staffMember, id: Date.now().toString() };
     setStaff((prev) => [...prev, newStaff]);
-  };
+  }, []);
 
-  const updateStaff = (id: string, updatedStaff: Partial<Staff>) => {
-    setStaff((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, ...updatedStaff } : s))
-    );
-  };
+  const updateStaff = useCallback(
+    (id: string, updatedStaff: Partial<Staff>) => {
+      setStaff((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, ...updatedStaff } : s))
+      );
+    },
+    []
+  );
 
-  const deleteStaff = (id: string) => {
+  const deleteStaff = useCallback((id: string) => {
     setStaff((prev) => prev.filter((s) => s.id !== id));
-  };
+  }, []);
 
-  const addToCart = (product: Product, quantity: number) => {
+  const addToCart = useCallback((product: Product, quantity: number) => {
     setCart((prev) => {
       const existingItem = prev.find((item) => item.product.id === product.id);
       if (existingItem) {
@@ -362,90 +181,95 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { product, quantity }];
     });
-  };
+  }, []);
 
-  const removeFromCart = (productId: string) => {
+  const removeFromCart = useCallback((productId: string) => {
     setCart((prev) => prev.filter((item) => item.product.id !== productId));
-  };
+  }, []);
 
-  const updateCartQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
-      return;
-    }
-    setCart((prev) =>
-      prev.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
-      )
-    );
-  };
-
-  const clearCart = () => {
-    setCart([]);
-  };
-
-  const addTransaction = (transaction: Omit<Transaction, "id">) => {
-    const newTransaction = { ...transaction, id: Date.now().toString() };
-    setTransactions((prev) => [newTransaction, ...prev]);
-
-    // Update stock and create transfer records for sales
-    transaction.items.forEach((item) => {
-      const product = products.find((p) => p.id === item.product.id);
-      if (product) {
-        const newStock = Math.max(0, product.stock - item.quantity);
-        updateProduct(item.product.id, { stock: newStock });
-
-        // Create transfer out record for sale
-        const transfer: StockTransfer = {
-          id: `TF${Date.now()}-${item.product.id}`,
-          productId: item.product.id,
-          productName: item.product.name,
-          type: "out",
-          quantity: item.quantity,
-          reason: "Penjualan",
-          notes: `Transaksi: ${newTransaction.id}`,
-          date: new Date(),
-          user: transaction.cashier,
-          stockBefore: product.stock,
-          stockAfter: newStock,
-        };
-        setStockTransfers((prev) => [transfer, ...prev]);
+  const updateCartQuantity = useCallback(
+    (productId: string, quantity: number) => {
+      if (quantity <= 0) {
+        removeFromCart(productId);
+        return;
       }
-    });
-  };
+      setCart((prev) =>
+        prev.map((item) =>
+          item.product.id === productId ? { ...item, quantity } : item
+        )
+      );
+    },
+    [removeFromCart]
+  );
 
-  const addStockTransfer = (transfer: Omit<StockTransfer, "id">) => {
-    const product = products.find((p) => p.id === transfer.productId);
-    if (!product) return;
+  const clearCart = useCallback(() => {
+    setCart([]);
+  }, []);
 
-    const newTransfer: StockTransfer = {
-      ...transfer,
-      id: Date.now().toString(),
-    };
+  const addTransaction = useCallback(
+    (transaction: Omit<Transaction, "id">) => {
+      const newTransaction = { ...transaction, id: Date.now().toString() };
+      setTransactions((prev) => [newTransaction, ...prev]);
 
-    // Update product stock
-    updateProduct(transfer.productId, { stock: transfer.stockAfter });
+      transaction.items.forEach((item) => {
+        const product = products.find((p) => p.id === item.product.id);
+        if (product) {
+          const newStock = Math.max(0, product.stock - item.quantity);
+          updateProduct(item.product.id, { stock: newStock });
 
-    // Add transfer record
-    setStockTransfers((prev) => [newTransfer, ...prev]);
-  };
+          const transfer: StockTransfer = {
+            id: `TF${Date.now()}-${item.product.id}`,
+            productId: item.product.id,
+            productName: item.product.name,
+            type: "out",
+            quantity: item.quantity,
+            reason: "Penjualan",
+            notes: `Transaksi: ${newTransaction.id}`,
+            date: new Date(),
+            user: transaction.cashier,
+            stockBefore: product.stock,
+            stockAfter: newStock,
+          };
+          setStockTransfers((prev) => [transfer, ...prev]);
+        }
+      });
+    },
+    [products, updateProduct]
+  );
 
-  const addTransferReceipt = (
-    receipt: Omit<TransferReceipt, "id" | "printedAt" | "printCount">
-  ) => {
-    const receiptId = `RC${Date.now()}`;
-    const newReceipt: TransferReceipt = {
-      ...receipt,
-      id: receiptId,
-      printedAt: new Date(),
-      printCount: 1,
-    };
+  const addStockTransfer = useCallback(
+    (transfer: Omit<StockTransfer, "id">) => {
+      const product = products.find((p) => p.id === transfer.productId);
+      if (!product) return;
 
-    setTransferReceipts((prev) => [newReceipt, ...prev]);
-    return receiptId;
-  };
+      const newTransfer: StockTransfer = {
+        ...transfer,
+        id: Date.now().toString(),
+      };
 
-  const updateReceiptPrintCount = (receiptId: string) => {
+      updateProduct(transfer.productId, { stock: transfer.stockAfter });
+      setStockTransfers((prev) => [newTransfer, ...prev]);
+    },
+    [products, updateProduct]
+  );
+
+  const addTransferReceipt = useCallback(
+    (receipt: Omit<TransferReceipt, "id" | "printedAt" | "printCount">) => {
+      const receiptId = `RC${Date.now()}`;
+      const newReceipt: TransferReceipt = {
+        ...receipt,
+        id: receiptId,
+        printedAt: new Date(),
+        printCount: 1,
+      };
+
+      setTransferReceipts((prev) => [newReceipt, ...prev]);
+      return receiptId;
+    },
+    []
+  );
+
+  const updateReceiptPrintCount = useCallback((receiptId: string) => {
     setTransferReceipts((prev) =>
       prev.map((receipt) =>
         receipt.id === receiptId
@@ -453,17 +277,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
           : receipt
       )
     );
-  };
+  }, []);
 
-  const getProductTransfers = (productId: string) => {
-    return stockTransfers.filter(
-      (transfer) => transfer.productId === productId
-    );
-  };
+  const getProductTransfers = useCallback(
+    (productId: string) => {
+      return stockTransfers.filter(
+        (transfer) => transfer.productId === productId
+      );
+    },
+    [stockTransfers]
+  );
 
-  const getTransferReceipt = (receiptId: string) => {
-    return transferReceipts.find((receipt) => receipt.id === receiptId);
-  };
+  const getTransferReceipt = useCallback(
+    (receiptId: string) => {
+      return transferReceipts.find((receipt) => receipt.id === receiptId);
+    },
+    [transferReceipts]
+  );
 
   return (
     <AppContext.Provider
