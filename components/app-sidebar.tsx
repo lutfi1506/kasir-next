@@ -11,7 +11,7 @@ import {
   Info,
   LogOut,
   Store,
-  User,
+  User as UserIcon,
   ChevronUp,
   BarChart3,
   FileText,
@@ -36,8 +36,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { logout } from "@/app/(auth)/actions";
+import type { User } from "@supabase/supabase-js";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  user,
+  ...props
+}: { user: User | null } & React.ComponentProps<typeof Sidebar>) {
   const segment = useSelectedLayoutSegment();
 
   const menuItems = [
@@ -125,8 +130,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <AvatarFallback className="rounded-lg">AD</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Admin Kasir</span>
-                    <span className="truncate text-xs">admin@kasir.com</span>
+                    <span className="truncate font-semibold">
+                      {user?.user_metadata?.full_name || "Admin Kasir"}
+                    </span>
+                    <span className="truncate text-xs">
+                      {user?.email || "admin@kasir.com"}
+                    </span>
                   </div>
                   <ChevronUp className="ml-auto size-4" />
                 </SidebarMenuButton>
@@ -138,13 +147,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 sideOffset={4}
               >
                 <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
+                  <UserIcon className="mr-2 h-4 w-4" />
                   <span>Profil</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-red-600">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logout</span>
-                </DropdownMenuItem>
+                <form action={logout}>
+                  <DropdownMenuItem>
+                    <button
+                      type="submit"
+                      className="w-full flex items-center gap-3 text-red-600"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </button>
+                  </DropdownMenuItem>
+                </form>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
