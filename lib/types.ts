@@ -15,7 +15,8 @@ export interface Staff {
   email: string;
   role: "admin" | "kasir";
   phone: string;
-  status: "aktif" | "nonaktif";
+  status: boolean;
+  user_id: string;
 }
 
 export interface CartItem {
