@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Kasir App - Point of Sale",
+  title: "Kasir App - Point of Sale Modern",
   description: "Aplikasi kasir modern untuk bisnis Anda",
 };
 
