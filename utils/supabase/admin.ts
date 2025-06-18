@@ -1,7 +1,9 @@
+import { checkAdminRole } from "@/lib/auth-helpers";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 export async function createAdminClient() {
+  await checkAdminRole();
   const cookieStore = await cookies();
 
   return createServerClient(

@@ -34,7 +34,7 @@ export default function Dashboard() {
   );
 
   const todayRevenue = todayTransactions.reduce((sum, t) => sum + t.total, 0);
-  const activeStaff = staff.filter((s) => s.status === "aktif").length;
+  const activeStaff = staff.filter((s) => s.status).length;
   const lowStockProducts = products.filter((p) => p.stock <= 10).length;
 
   const stats = [

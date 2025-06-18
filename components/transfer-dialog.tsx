@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useApp } from "@/contexts/app-context";
+import { useState, useTransition } from "react";
+import type {
+  ActionResponse,
+  Product,
+  Staff,
+  StockTransferPayload,
+} from "@/lib/types"; // Pastikan Staff diimpor
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,21 +26,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import {
-  ArrowUp,
-  ArrowDown,
-  AlertTriangle,
-  Printer,
-  FileText,
-} from "lucide-react";
-import { TransferReceipt } from "./transfer-receipt";
-import { Product } from "@/lib/types";
+import { ArrowUp, ArrowDown, AlertTriangle } from "lucide-react";
 
+// --- INI BAGIAN YANG DIPERBAIKI ---
 interface TransferDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   product: Product;
   type: "in" | "out";
+  activeStaff: Pick<Staff, "id" | "name">[]; // <-- PROPERTI INI DITAMBAHKAN
+  onConfirm: (data: StockTransferPayload) => ActionResponse;
 }
 
 export function TransferDialog({
@@ -43,62 +43,62 @@ export function TransferDialog({
   onOpenChange,
   product,
   type,
+  activeStaff,
+  onConfirm,
 }: TransferDialogProps) {
-  const {
-    addStockTransfer,
-    addTransferReceipt,
-    updateReceiptPrintCount,
-    staff,
-  } = useApp();
+  const [isPending, startTransition] = useTransition();
   const [quantity, setQuantity] = useState("");
   const [reason, setReason] = useState("");
   const [notes, setNotes] = useState("");
-  const [selectedStaff, setSelectedStaff] = useState("");
-  const [showReceipt, setShowReceipt] = useState(false);
-  const [currentReceiptId, setCurrentReceiptId] = useState<string | null>(null);
+  const [selectedStaffId, setSelectedStaffId] = useState("");
 
   const transferInReasons = [
     "Pembelian Barang",
     "Restocking",
-    "Retur Supplier",
+    "Retur Pelanggan",
     "Koreksi Stok",
-    "Transfer dari Cabang",
-    "Hadiah/Bonus",
     "Lainnya",
   ];
-
   const transferOutReasons = [
     "Barang Rusak",
     "Expired",
     "Kehilangan",
     "Koreksi Stok",
-    "Transfer ke Cabang",
-    "Sampel Gratis",
     "Retur ke Supplier",
     "Lainnya",
   ];
-
   const reasons = type === "in" ? transferInReasons : transferOutReasons;
-  const activeStaff = staff.filter((s) => s.status === "aktif");
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      setQuantity("");
+      setReason("");
+      setNotes("");
+      setSelectedStaffId("");
+    }
+    onOpenChange(isOpen);
+  };
 
   const handleSubmit = () => {
-    if (!quantity || !reason || !selectedStaff) return;
+    if (!quantity || !reason || !selectedStaffId) {
+      alert("Harap isi semua field yang wajib diisi.");
+      return;
+    }
 
-    const qty = Number.parseInt(quantity);
-    if (qty <= 0) return;
-
-    // Validate stock for transfer out
+    const qty = parseInt(quantity, 10);
+    if (isNaN(qty) || qty <= 0) {
+      alert("Jumlah harus berupa angka positif.");
+      return;
+    }
     if (type === "out" && qty > product.stock) {
       alert("Jumlah transfer out tidak boleh melebihi stok yang tersedia!");
       return;
     }
 
-    const selectedStaffMember = staff.find((s) => s.id === selectedStaff);
+    const selectedStaffMember = activeStaff.find(
+      (s) => s.id === selectedStaffId
+    );
     if (!selectedStaffMember) return;
-
-    const stockBefore = product.stock;
-    const stockAfter =
-      type === "in" ? stockBefore + qty : Math.max(0, stockBefore - qty);
 
     const transferData = {
       productId: product.id,
@@ -107,105 +107,26 @@ export function TransferDialog({
       quantity: qty,
       reason,
       notes: notes.trim() || undefined,
-      date: new Date(),
-      user: selectedStaffMember.name,
       userId: selectedStaffMember.id,
-      stockBefore,
-      stockAfter,
+      userName: selectedStaffMember.name,
     };
 
-    // Add transfer
-    addStockTransfer(transferData);
-
-    // Create receipt
-    const receiptData = {
-      transferId: `TF${Date.now()}`,
-      product: {
-        id: product.id,
-        name: product.name,
-        category: product.category,
-        barcode: product.barcode,
-      },
-      type,
-      quantity: qty,
-      reason,
-      notes: notes.trim() || undefined,
-      date: new Date(),
-      user: selectedStaffMember.name,
-      staff: {
-        id: selectedStaffMember.id,
-        name: selectedStaffMember.name,
-        role: selectedStaffMember.role,
-        email: selectedStaffMember.email,
-        phone: selectedStaffMember.phone,
-      },
-      stockBefore,
-      stockAfter,
-    };
-
-    const receiptId = addTransferReceipt(receiptData);
-    setCurrentReceiptId(receiptId);
-
-    // Reset form
-    setQuantity("");
-    setReason("");
-    setNotes("");
-    setSelectedStaff("");
-
-    // Show receipt
-    setShowReceipt(true);
-  };
-
-  const handlePrint = () => {
-    if (currentReceiptId) {
-      updateReceiptPrintCount(currentReceiptId);
-    }
-    window.print();
-  };
-
-  const handleCloseReceipt = () => {
-    setShowReceipt(false);
-    setCurrentReceiptId(null);
-    onOpenChange(false);
+    startTransition(async () => {
+      const result = await onConfirm(transferData);
+      if (result?.error) {
+        alert("Gagal melakukan transfer: " + result.error.message);
+      } else {
+        handleOpenChange(false);
+      }
+    });
   };
 
   const newStock =
-    type === "in"
-      ? product.stock + Number.parseInt(quantity || "0")
-      : Math.max(0, product.stock - Number.parseInt(quantity || "0"));
-
-  if (showReceipt && currentReceiptId) {
-    return (
-      <Dialog open={showReceipt} onOpenChange={setShowReceipt}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Laporan Transfer {type === "in" ? "In" : "Out"}
-            </DialogTitle>
-            <DialogDescription>
-              Transfer berhasil diproses. Cetak laporan untuk dokumentasi.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <TransferReceipt receiptId={currentReceiptId} />
-            <div className="flex gap-2">
-              <Button className="flex-1" onClick={handlePrint}>
-                <Printer className="h-4 w-4 mr-2" />
-                Cetak Laporan
-              </Button>
-              <Button variant="outline" onClick={handleCloseReceipt}>
-                Tutup
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+    product.stock +
+    (type === "in" ? parseInt(quantity || "0") : -parseInt(quantity || "0"));
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -221,8 +142,7 @@ export function TransferDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Product Info */}
+        <div className="space-y-4 py-4">
           <div className="p-3 bg-muted rounded-lg">
             <div className="flex justify-between items-center">
               <span className="font-medium">{product.name}</span>
@@ -238,53 +158,42 @@ export function TransferDialog({
                 Stok: {product.stock}
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground">{product.category}</p>
           </div>
 
-          {/* Staff Selection */}
           <div>
-            <Label htmlFor="staff">Petugas yang Melakukan Transfer</Label>
-            <Select value={selectedStaff} onValueChange={setSelectedStaff}>
+            <Label htmlFor="staff">Petugas</Label>
+            <Select value={selectedStaffId} onValueChange={setSelectedStaffId}>
               <SelectTrigger>
                 <SelectValue placeholder="Pilih petugas" />
               </SelectTrigger>
               <SelectContent>
-                {activeStaff.map((staffMember) => (
-                  <SelectItem key={staffMember.id} value={staffMember.id}>
-                    <div className="flex items-center gap-2">
-                      <span>{staffMember.name}</span>
-                      <Badge variant="outline" className="text-xs">
-                        {staffMember.role}
-                      </Badge>
-                    </div>
+                {activeStaff.map((staff) => (
+                  <SelectItem key={staff.id} value={staff.id}>
+                    {staff.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Quantity */}
           <div>
             <Label htmlFor="quantity">Jumlah</Label>
             <Input
               id="quantity"
               type="number"
               min="1"
-              max={type === "out" ? product.stock : undefined}
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               placeholder="Masukkan jumlah"
             />
-            {type === "out" &&
-              Number.parseInt(quantity || "0") > product.stock && (
-                <div className="flex items-center gap-1 mt-1 text-sm text-red-600">
-                  <AlertTriangle className="h-3 w-3" />
-                  <span>Jumlah melebihi stok tersedia</span>
-                </div>
-              )}
+            {type === "out" && parseInt(quantity || "0") > product.stock && (
+              <div className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                <AlertTriangle className="h-3 w-3" />
+                <span>Jumlah melebihi stok</span>
+              </div>
+            )}
           </div>
 
-          {/* Reason */}
           <div>
             <Label htmlFor="reason">Alasan</Label>
             <Select value={reason} onValueChange={setReason}>
@@ -301,7 +210,6 @@ export function TransferDialog({
             </Select>
           </div>
 
-          {/* Notes */}
           <div>
             <Label htmlFor="notes">Catatan (Opsional)</Label>
             <Textarea
@@ -309,14 +217,12 @@ export function TransferDialog({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Tambahkan catatan jika diperlukan"
-              rows={3}
             />
           </div>
 
-          {/* Stock Preview */}
-          {quantity && Number.parseInt(quantity) > 0 && (
-            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="text-sm">
+          {quantity && parseInt(quantity) > 0 && !isNaN(newStock) && (
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="text-sm space-y-1">
                 <div className="flex justify-between">
                   <span>Stok Sekarang:</span>
                   <span className="font-medium">{product.stock}</span>
@@ -333,30 +239,22 @@ export function TransferDialog({
                   </span>
                 </div>
                 <div className="flex justify-between border-t pt-1 mt-1">
-                  <span>Stok Setelah Transfer:</span>
+                  <span className="font-bold">Stok Setelah Transfer:</span>
                   <span className="font-bold">{newStock}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-4">
             <Button
               onClick={handleSubmit}
               className="flex-1"
-              disabled={
-                !quantity ||
-                !reason ||
-                !selectedStaff ||
-                Number.parseInt(quantity || "0") <= 0 ||
-                (type === "out" &&
-                  Number.parseInt(quantity || "0") > product.stock)
-              }
+              disabled={!quantity || !reason || !selectedStaffId || isPending}
             >
-              Konfirmasi Transfer
+              {isPending ? "Memproses..." : "Konfirmasi Transfer"}
             </Button>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => handleOpenChange(false)}>
               Batal
             </Button>
           </div>

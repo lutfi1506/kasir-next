@@ -1,11 +1,21 @@
-// lib/types.ts
+import { PostgrestError } from "@supabase/supabase-js";
 
+export interface Category {
+  id: string;
+  name: string;
+  description?: string;
+}
 export interface Product {
   id: string;
   name: string;
   price: number;
   stock: number;
-  category: string;
+  category_id: string;
+  categories:
+    | {
+        name: string;
+      }[]
+    | null;
   barcode?: string;
 }
 
@@ -49,6 +59,23 @@ export interface StockTransfer {
   stockBefore: number;
   stockAfter: number;
 }
+
+export interface StockTransferPayload {
+  productId: string;
+  productName: string;
+  type: "in" | "out";
+  quantity: number;
+  reason: string;
+  notes?: string;
+  userId?: string;
+  userName?: string;
+}
+
+// Tipe untuk kembalian dari server action
+export type ActionResponse<T = null> = Promise<{
+  data: T | null;
+  error: PostgrestError | { message: string } | null;
+}>;
 
 export interface TransferReceipt {
   id: string;
