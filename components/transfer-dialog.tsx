@@ -79,7 +79,7 @@ export function TransferDialog({
   ];
 
   const reasons = type === "in" ? transferInReasons : transferOutReasons;
-  const activeStaff = staff.filter((s) => s.status === "aktif");
+  const activeStaff = staff.filter((s) => s.status === true);
 
   const handleSubmit = () => {
     if (!quantity || !reason || !selectedStaff) return;

@@ -15,6 +15,7 @@ import {
   ChevronUp,
   BarChart3,
   FileText,
+  Tags,
 } from "lucide-react";
 import {
   Sidebar,
@@ -58,6 +59,7 @@ export function AppSidebar({
       href: "/penjualan",
       icon: ShoppingCart,
     },
+    { title: "Kategori", key: "kategori", href: "/kategori", icon: Tags },
     { title: "Produk", key: "produk", href: "/produk", icon: Package },
     { title: "Petugas", key: "petugas", href: "/petugas", icon: Users },
     { title: "Laporan", key: "laporan", href: "/laporan", icon: BarChart3 },

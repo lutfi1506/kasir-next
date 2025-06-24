@@ -53,7 +53,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       name: "Indomie Goreng",
       price: 3500,
       stock: 100,
-      category: "Makanan",
+      category_id: "1",
+      categories: { name: "Makanan" },
       barcode: "8992388123456",
     },
     {
@@ -61,7 +62,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       name: "Aqua 600ml",
       price: 3000,
       stock: 50,
-      category: "Minuman",
+      category_id: "2",
+      categories: { name: "Minuman" },
       barcode: "8993675123456",
     },
     {
@@ -69,7 +71,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       name: "Teh Botol Sosro",
       price: 4000,
       stock: 30,
-      category: "Minuman",
+      category_id: "2",
+      categories: { name: "Minuman" },
       barcode: "8991234567890",
     },
     {
@@ -77,7 +80,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       name: "Roti Tawar",
       price: 12000,
       stock: 20,
-      category: "Makanan",
+      category_id: "1",
+      categories: { name: "Makanan" },
       barcode: "8995678901234",
     },
     {
@@ -85,7 +89,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       name: "Kopi Kapal Api",
       price: 2500,
       stock: 75,
-      category: "Minuman",
+      category_id: "2",
+      categories: { name: "Minuman" },
       barcode: "8991234567891",
     },
     {
@@ -93,7 +98,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       name: "Mie Sedaap",
       price: 3200,
       stock: 80,
-      category: "Makanan",
+      category_id: "1",
+      categories: { name: "Makanan" },
       barcode: "8992388123457",
     },
   ]);
@@ -105,7 +111,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       email: "admin@kasir.com",
       role: "admin",
       phone: "081234567890",
-      status: "aktif",
+      status: true,
+      user_id: "user-1",
     },
     {
       id: "2",
@@ -113,7 +120,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       email: "siti@kasir.com",
       role: "kasir",
       phone: "081234567891",
-      status: "aktif",
+      status: true,
+      user_id: "user-2",
     },
     {
       id: "3",
@@ -121,7 +129,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       email: "budi@kasir.com",
       role: "kasir",
       phone: "081234567892",
-      status: "aktif",
+      status: true,
+      user_id: "user-3",
     },
   ]);
 

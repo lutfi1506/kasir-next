@@ -18,7 +18,7 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
   console.log(`Rendering ProductCard: ${product.name}`); // Anda bisa gunakan ini untuk melihat kapan re-render terjadi
 
   return (
-    <Card className="cursor-pointer hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-semibold">{product.name}</h3>
@@ -26,13 +26,16 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
             Stok: {product.stock}
           </Badge>
         </div>
-        <p className="text-sm text-muted-foreground mb-2">{product.category}</p>
+        <p className="text-sm text-muted-foreground mb-2">
+          {product.barcode || "Tidak ada barcode"}
+        </p>
         <div className="flex justify-between items-center">
           <span className="text-lg font-bold">
             Rp {product.price.toLocaleString()}
           </span>
           <Button
             size="sm"
+            className="cursor-pointer"
             onClick={() => onAddToCart(product)}
             disabled={product.stock === 0}
           >

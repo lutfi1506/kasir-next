@@ -52,7 +52,7 @@ export default function ProdukPage({
   allCategories: Category[];
 }) {
   const [products, setProducts] = useState(initialProducts);
-  const [startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);

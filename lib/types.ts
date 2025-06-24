@@ -42,6 +42,14 @@ export interface Transaction {
   change: number;
 }
 
+export interface TransactionItem {
+  id: string;
+  transaction_id: string;
+  product_id: string;
+  quantity: number;
+  price_at_purchase: number;
+}
+
 export interface StockTransfer {
   id: string;
   productId: string;
