@@ -1,11 +1,18 @@
 // lib/types.ts
 
+export interface Category {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
   price: number;
   stock: number;
-  category: string;
+  category_id: string;
+  categories: Pick<Category, "name">;
   barcode?: string;
 }
 
